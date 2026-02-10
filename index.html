@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-charcoal-950">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Low Block - Football AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              charcoal: {
+                950: '#0e1012', // Main Deep Background
+                900: '#15181c', // Secondary / Header
+                800: '#202429', // Cards / Inputs
+                700: '#323842', // Borders (Graphite)
+              },
+              chalk: {
+                green: '#81c784', // Soft Chalk Green
+                white: '#eceff1', // Off-white text
+                gray: '#90a4ae', // Muted secondary text
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+              mono: ['JetBrains Mono', 'Menlo', 'monospace'],
+            },
+            animation: {
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'fade-in-up': 'fadeInUp 0.4s ease-out forwards',
+              'fade-in': 'fadeIn 0.6s ease-out forwards',
+            },
+            keyframes: {
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Custom Scrollbar for a cleaner look */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #323842;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #454d59;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="h-full text-chalk-white overflow-hidden selection:bg-chalk-green/30 selection:text-chalk-white antialiased">
+    <div id="root" class="h-full flex flex-col"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
