@@ -1,4 +1,6 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Message } from '../types';
 
 interface ChatMessageProps {
@@ -47,9 +49,24 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         
         <div className="bg-charcoal-900/60 border-y border-r border-charcoal-700 rounded-r-lg p-6 md:p-7 shadow-xl shadow-black/20 ml-1 transition-all duration-300 hover:bg-charcoal-800/60">
           <div className="prose prose-invert max-w-none">
-             <div className="text-base md:text-lg text-chalk-white leading-8 font-light tracking-wide whitespace-pre-wrap">
+             {/* Replaced raw content with ReactMarkdown */}
+             <ReactMarkdown 
+               remarkPlugins={[remarkGfm]}
+               components={{
+                 // Custom styling to match "The Low Block" aesthetic
+                 p: ({node, ...props}) => <p className="mb-4 leading-relaxed font-light tracking-wide text-chalk-white/90" {...props} />,
+                 strong: ({node, ...props}) => <strong className="font-bold text-chalk-white" {...props} />,
+                 ul: ({node, ...props}) => <ul className="list-disc list-outside ml-4 mb-4 space-y-2 marker:text-chalk-green" {...props} />,
+                 ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-4 mb-4 space-y-2 marker:text-chalk-green" {...props} />,
+                 li: ({node, ...props}) => <li className="text-chalk-gray/90 leading-relaxed pl-1" {...props} />,
+                 h1: ({node, ...props}) => <h1 className="text-xl font-bold uppercase tracking-widest text-chalk-green mt-6 mb-4 border-b border-charcoal-700 pb-2" {...props} />,
+                 h2: ({node, ...props}) => <h2 className="text-lg font-bold uppercase tracking-widest text-chalk-green mt-6 mb-3 border-b border-charcoal-700 pb-2" {...props} />,
+                 h3: ({node, ...props}) => <h3 className="text-base font-bold text-chalk-white mt-4 mb-2" {...props} />,
+                 blockquote: ({node, ...props}) => <blockquote className="border-l-2 border-chalk-green/50 pl-4 italic text-chalk-gray my-4" {...props} />,
+               }}
+             >
                {message.content}
-             </div>
+             </ReactMarkdown>
           </div>
         </div>
       </div>
