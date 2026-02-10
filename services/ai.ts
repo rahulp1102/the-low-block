@@ -1,29 +1,52 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Message } from '../types';
 
-// In a real implementation, this would import GoogleGenAI
-// import { GoogleGenAI } from "@google/genai";
+// Initialize the API client
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
-/**
- * Simulates sending a message to the AI service.
- * This is where the Gemini API integration will eventually live.
- */
+// System Instruction: This defines the AI's persona
+const SYSTEM_INSTRUCTION = `
+You are "The Low Block," an elite football tactical analysis engine. 
+Your tone is professional, analytical, and slightly detached, like a senior match analyst briefing a head coach.
+
+Guidelines:
+1. **Terminology**: Use precise tactical jargon (e.g., "half-spaces," "rest defense," "xG," "pressing triggers," "double pivot").
+2. **Brevity**: Be concise. Avoid fluff. Focus on structure, shape, and movement.
+3. **Format**: Use bullet points for key tactical breakdowns.
+4. **Context**: If the user asks about a specific team (like Chelsea), analyze their current real-world tactical setup (e.g., Maresca's system).
+5. **Restrictions**: Do not discuss non-football topics. If asked, reply: "Outside of tactical parameters."
+`;
+
 export const fetchAIResponse = async (history: Message[]): Promise<string> => {
-  // const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  // const model = ai.models.getGenerativeModel({ model: "gemini-pro" }); 
-  
-  // Simulate network delay for "thinking" state
-  await new Promise((resolve) => setTimeout(resolve, 1500 + Math.random() * 1000));
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-  // Placeholder logic: In the future, 'history' would be formatted and sent to Gemini.
-  const lastUserMessage = history[history.length - 1]?.content.toLowerCase() || "";
+    // Convert your chat history to the format Gemini expects
+    const chat = model.startChat({
+      history: [
+        {
+          role: "user",
+          parts: [{ text: SYSTEM_INSTRUCTION }],
+        },
+        {
+          role: "model",
+          parts: [{ text: "System initialized. Tactical engine online. Awaiting data inputs." }],
+        },
+        ...history.slice(0, -1).map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.content }],
+        }))
+      ],
+    });
 
-  if (lastUserMessage.includes("tactic") || lastUserMessage.includes("formation")) {
-    return "From a tactical perspective, switching to a 3-4-3 could offer better width against a low block. However, you expose the flanks if the wing-backs don't track back efficiently.";
+    const lastMessage = history[history.length - 1].content;
+    const result = await chat.sendMessage(lastMessage);
+    const response = result.response;
+    
+    return response.text();
+    
+  } catch (error) {
+    console.error("Tactical Uplink Failed:", error);
+    return "Connection interrupted. Unable to retrieve tactical data at this time. (Check your API Key)";
   }
-  
-  if (lastUserMessage.includes("press") || lastUserMessage.includes("klopp")) {
-    return "Gegenpressing requires high intensity. The key is the trigger—losing possession acts as the immediate signal to swarm the ball carrier before they can consolidate.";
-  }
-
-  return "I am currently in calibration mode. Once fully connected to the Gemini API, I will be able to provide deep tactical breakdowns, player comparisons, and historical match analysis based on the context you provide.";
 };
