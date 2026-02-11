@@ -4,7 +4,6 @@ import { Message, AnalysisMode } from '../types';
 // Initialize the API client
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
-// The Personality Matrix
 const PERSONAS: Record<AnalysisMode, string> = {
   tactical: `
     You are "The Low Block," an elite tactical analysis engine.
@@ -28,18 +27,39 @@ const PERSONAS: Record<AnalysisMode, string> = {
 
 export const fetchAIResponse = async (history: Message[], mode: AnalysisMode): Promise<string> => {
   try {
-    // FIX: Using the model explicitly listed in your JSON
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    // FIX 1: Enable the "Google Search" tool so it can find 25/26 stats
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash",
+      tools: [{ googleSearch: {} }] 
+    });
+
+    // FIX 2: Dynamic Date Injection
+    // We tell the AI *exactly* what day it is so it knows we are in the 25/26 season
+    const today = new Date().toLocaleDateString('en-GB', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+
+    const contextPrompt = `
+      ${PERSONAS[mode]}
+      
+      CRITICAL CONTEXT:
+      - Today's Date: ${today}.
+      - Current Season: 2025/2026.
+      - If asking for stats/form, YOU MUST USE THE GOOGLE SEARCH TOOL to find live data from the 25/26 season.
+      - Do not rely on your internal training data for recent matches.
+    `;
 
     const chat = model.startChat({
       history: [
         {
           role: "user",
-          parts: [{ text: PERSONAS[mode] }],
+          parts: [{ text: contextPrompt }],
         },
         {
           role: "model",
-          parts: [{ text: `Mode active: ${mode}. Systems calibrated.` }],
+          parts: [{ text: `System online. Date: ${today}. Search tools active.` }],
         },
         ...history.slice(0, -1).map(msg => ({
           role: msg.role === 'user' ? 'user' : 'model',
