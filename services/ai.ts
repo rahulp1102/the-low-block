@@ -4,7 +4,7 @@ import { Message, AnalysisMode } from '../types';
 // Initialize the API client
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
-// NEW: The Personality Matrix
+// The Personality Matrix
 const PERSONAS: Record<AnalysisMode, string> = {
   tactical: `
     You are "The Low Block," an elite tactical analysis engine.
@@ -26,17 +26,16 @@ const PERSONAS: Record<AnalysisMode, string> = {
   `
 };
 
-// Updated function to accept 'mode'
 export const fetchAIResponse = async (history: Message[], mode: AnalysisMode): Promise<string> => {
   try {
-    // Using the stable latest model version
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    // FIX: Using the model explicitly listed in your JSON
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const chat = model.startChat({
       history: [
         {
           role: "user",
-          parts: [{ text: PERSONAS[mode] }], // Inject the specific persona
+          parts: [{ text: PERSONAS[mode] }],
         },
         {
           role: "model",
