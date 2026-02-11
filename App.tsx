@@ -2,6 +2,7 @@ import React from 'react';
 import { ChatProvider } from './context/ChatContext';
 import ChatWindow from './components/ChatWindow';
 import ChatInput from './components/ChatInput';
+import ModeSelector from './components/ModeSelector'; // Import the new component
 
 function App() {
   return (
@@ -25,7 +26,10 @@ function App() {
           </div>
           
           <div className="flex items-center gap-6">
-             <div className="hidden md:flex flex-col items-end">
+             {/* NEW: Mode Selector Added Here */}
+             <ModeSelector />
+
+             <div className="hidden md:flex flex-col items-end border-l border-charcoal-700 pl-6">
                 <span className="text-[10px] text-charcoal-700 font-mono tracking-widest">STATUS</span>
                 <div className="flex items-center gap-2">
                    <div className="w-1.5 h-1.5 rounded-full bg-chalk-green shadow-[0_0_8px_rgba(129,199,132,0.4)] animate-pulse"></div>

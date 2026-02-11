@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { Message, ChatContextType, Role } from '../types';
+import { Message, ChatContextType, Role, AnalysisMode } from '../types';
 import { fetchAIResponse } from '../services/ai';
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -17,10 +17,10 @@ interface ChatProviderProps {
 }
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
-  // Start empty to show the introductory empty state
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<AnalysisMode>('tactical'); // NEW: Default mode
 
   const addMessage = (role: Role, content: string) => {
     const newMessage: Message = {
@@ -37,17 +37,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     if (!content.trim()) return;
 
     setError(null);
-    // Add user message immediately
     const userMsg = addMessage('user', content);
     
     setIsLoading(true);
 
     try {
-      // Pass the updated history (including the new user message) to the service
-      // We reconstruct the array here because 'setMessages' is async
       const currentHistory = [...messages, userMsg];
       
-      const responseContent = await fetchAIResponse(currentHistory);
+      // NEW: Pass the 'mode' to the API
+      const responseContent = await fetchAIResponse(currentHistory, mode);
       
       addMessage('assistant', responseContent);
     } catch (err) {
@@ -56,7 +54,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [messages]);
+  }, [messages, mode]); // NEW: Add 'mode' to dependencies
 
   const clearChat = useCallback(() => {
     setMessages([]);
@@ -64,7 +62,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   }, []);
 
   return (
-    <ChatContext.Provider value={{ messages, isLoading, error, sendMessage, clearChat }}>
+    <ChatContext.Provider value={{ messages, isLoading, error, mode, sendMessage, clearChat, setMode }}>
       {children}
     </ChatContext.Provider>
   );

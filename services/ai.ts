@@ -1,36 +1,46 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { Message } from '../types';
+import { Message, AnalysisMode } from '../types';
 
 // Initialize the API client
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
-// System Instruction: This defines the AI's persona
-const SYSTEM_INSTRUCTION = `
-You are "The Low Block," an elite football tactical analysis engine. 
-Your tone is professional, analytical, and slightly detached, like a senior match analyst briefing a head coach.
+// NEW: The Personality Matrix
+const PERSONAS: Record<AnalysisMode, string> = {
+  tactical: `
+    You are "The Low Block," an elite tactical analysis engine.
+    Tone: Cold, precise, structural. Use terms like "rest defense," "half-spaces," "xG."
+    Focus: Formations, pressing triggers, build-up shapes.
+    Format: Use bullet points. Be concise.
+  `,
+  scout: `
+    You are an elite Head Scout for a top European club.
+    Tone: Observational, data-driven, projecting potential.
+    Focus: Player attributes (technical, physical, mental), ceiling, market value, and comparisons.
+    Format: Use "✅ Strengths", "⚠️ Weaknesses", and "💡 Verdict".
+  `,
+  pundit: `
+    You are a passionate, slightly controversial TV Pundit (like Roy Keane mixed with Jamie Carragher).
+    Tone: Opinionated, sharp, using short sentences. Don't be afraid to criticize poor performances.
+    Focus: Mentality, "desire," leadership, and narrative.
+    Format: Conversational and punchy.
+  `
+};
 
-Guidelines:
-1. **Terminology**: Use precise tactical jargon (e.g., "half-spaces," "rest defense," "xG," "pressing triggers," "double pivot").
-2. **Brevity**: Be concise. Avoid fluff. Focus on structure, shape, and movement.
-3. **Format**: Use bullet points for key tactical breakdowns.
-4. **Context**: If the user asks about a specific team (like Chelsea), analyze their current real-world tactical setup (e.g., Maresca's system).
-5. **Restrictions**: Do not discuss non-football topics. If asked, reply: "Outside of tactical parameters."
-`;
-
-export const fetchAIResponse = async (history: Message[]): Promise<string> => {
+// Updated function to accept 'mode'
+export const fetchAIResponse = async (history: Message[], mode: AnalysisMode): Promise<string> => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Using the stable latest model version
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
-    // Convert your chat history to the format Gemini expects
     const chat = model.startChat({
       history: [
         {
           role: "user",
-          parts: [{ text: SYSTEM_INSTRUCTION }],
+          parts: [{ text: PERSONAS[mode] }], // Inject the specific persona
         },
         {
           role: "model",
-          parts: [{ text: "System initialized. Tactical engine online. Awaiting data inputs." }],
+          parts: [{ text: `Mode active: ${mode}. Systems calibrated.` }],
         },
         ...history.slice(0, -1).map(msg => ({
           role: msg.role === 'user' ? 'user' : 'model',
@@ -45,8 +55,8 @@ export const fetchAIResponse = async (history: Message[]): Promise<string> => {
     
     return response.text();
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("Tactical Uplink Failed:", error);
-    return "Connection interrupted. Unable to retrieve tactical data at this time. (Check your API Key)";
+    return `SYSTEM ERROR: ${error.message || "Unknown error occurred"}`;
   }
 };

@@ -44,12 +44,10 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
       {/* Analyst Card */}
       <div className="relative group">
-        {/* Decorative left accent line */}
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-chalk-green to-charcoal-700 rounded-l-md opacity-80"></div>
         
         <div className="bg-charcoal-900/60 border-y border-r border-charcoal-700 rounded-r-lg p-6 md:p-7 shadow-xl shadow-black/20 ml-1 transition-all duration-300 hover:bg-charcoal-800/60">
           <div className="prose prose-invert max-w-none">
-             {/* Replaced raw content with ReactMarkdown */}
              <ReactMarkdown 
                remarkPlugins={[remarkGfm]}
                components={{
