@@ -27,14 +27,14 @@ const PERSONAS: Record<AnalysisMode, string> = {
 
 export const fetchAIResponse = async (history: Message[], mode: AnalysisMode): Promise<string> => {
   try {
-    // FIX 1: Enable the "Google Search" tool so it can find 25/26 stats
+    // FIX: Upgraded to 'gemini-2.5-pro'
+    // This model has 1,500 daily requests (vs 20 for Flash) AND is smarter.
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-pro", 
       tools: [{ googleSearch: {} }] 
     });
 
-    // FIX 2: Dynamic Date Injection
-    // We tell the AI *exactly* what day it is so it knows we are in the 25/26 season
+    // Dynamic Date Injection
     const today = new Date().toLocaleDateString('en-GB', { 
       year: 'numeric', 
       month: 'long', 
@@ -76,6 +76,10 @@ export const fetchAIResponse = async (history: Message[], mode: AnalysisMode): P
     
   } catch (error: any) {
     console.error("Tactical Uplink Failed:", error);
+    // Better error handling for the user
+    if (error.message.includes("429")) {
+       return "⚠️ TRAFFIC OVERLOAD: We hit the Google API limit. Please wait 1 minute.";
+    }
     return `SYSTEM ERROR: ${error.message || "Unknown error occurred"}`;
   }
 };
