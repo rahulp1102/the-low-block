@@ -27,10 +27,10 @@ const PERSONAS: Record<AnalysisMode, string> = {
 
 export const fetchAIResponse = async (history: Message[], mode: AnalysisMode): Promise<string> => {
   try {
-    // FIX: Reverting to 'gemini-2.0-flash' 
+    // FIX: Reverting to 'gemini-flash-latest' 
     // This is the most stable model for the Free Tier.
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash", 
+      model: "gemini-flash-latest", 
       tools: [{ googleSearch: {} }] 
     });
 
